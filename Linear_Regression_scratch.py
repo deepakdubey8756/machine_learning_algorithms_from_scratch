@@ -23,55 +23,66 @@ class LinearReression:
         return y_predicted
 
 
+    # this function will return initial coeffients
+    def initialize_coeff(self, features):
+        coeffs = []
+        for i in range(features+1):
+            coeffs.append(0)
+        
+        return coeffs
+
+
+
+    #Calculate cost;
+    def cost(self, y, x):
+        return y - self.predict(x)
+
 
     #Calculating mean squared error
-    def mean_squared_error(self, y, y_predicted):
+    def mean_squared_error(self, y, x):
         """y: list of labels
            y_predicted: list of total predicted values"""
 
         #total data points
         n = len(y)
         #our total cost
-        cost = 0
+        error = 0
         
         for i in range(n):
-            cost += (y[i] - y_predicted[i]) ** 2
+            error += self.cost(y[i], x[i])** 2
     
-        return cost/n
+        return error/n
+    
 
-
+    def updateTheta(self, theta_i, grad_coeff_i, alpha):
+        return theta_i - grad_coeff_i * alpha
 
     #this function will calculate gradients
     def gradient(self, alpha, x, y):
-        initial_gradient  = []
         n = len(y)
         features = len(x[0])
-
-        for i in range(features+1):
-            initial_gradient.append(0)
+        gradient_coeff = self.initialize_coeff(features)
 
         #computing gradient coefficients of entire dataset
         for i in range(n):
-            diff = y[i] - self.predict(x[i])
-            initial_gradient[0] += -(2/n) * diff
+            diff = self.cost(y[i], x[i])
+            gradient_coeff[0] += -(2/n) * diff
             for j in range(features):
-                initial_gradient[j+1] += -(2/n) * x[i][j] * diff
+                gradient_coeff[j+1] += -(2/n) * x[i][j] * diff
 
         #updating our theta parameter
-        self.theta[0] = self.theta[0] - initial_gradient[0] * alpha
+        self.theta[0] = self.updateTheta(self.theta[0], gradient_coeff[0], alpha)
         for i in range(1, features):
-            self.theta[i] = self.theta[i] - initial_gradient[i] * alpha
+            self.theta[i] = self.updateTheta(self.theta[i], gradient_coeff[i], alpha)
 
         return
 
     #fiting entire dataset
-    def fit(self, x, y):
+    def fit(self, x, y, alpha=0.001, epochs=10000):
         #Total Features
         m = len(x[0])
-        for i in range(m+1):
-            self.theta.append(0)
-        alpha = 0.001
-        epochs = 10000
+        self.theta = self.initialize_coeff(m)
+
         for i in range(epochs):
             self.gradient(alpha, x, y)
 
@@ -93,13 +104,5 @@ if __name__ == "__main__":
 
     #printing it's weiths
     print(leg.theta)
-
-    #Let's predict our output
-    y_predicted = []
-    n = len(y)
-    for i in range(n):
-        y_predicted.append(leg.predict(x_multi[i]))
-
-    print(y_predicted)
-
-    print(leg.mean_squared_error(y,  y_predicted))
+   
+    print(leg.mean_squared_error(y,  x_multi))
