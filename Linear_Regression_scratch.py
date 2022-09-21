@@ -2,8 +2,8 @@
 class LinearReression:
 
     def __init__(self):
-        self.theta = []
-
+        self.theta = None
+        self.bias = None
 
     #predicting value of x
     def predict(self, x):
@@ -14,11 +14,11 @@ class LinearReression:
         features = len(x)
 
         #predicted value
-        y_predicted = self.theta[0]
+        y_predicted = self.bias
 
         #Iterating throught every data instances
         for i in range(features):
-            y_predicted +=  self.theta[i + 1] * x[i]
+            y_predicted +=  self.theta[i] * x[i]
             
         return y_predicted
 
@@ -26,7 +26,7 @@ class LinearReression:
     # this function will return initial coeffients
     def initialize_coeff(self, features):
         coeffs = []
-        for i in range(features+1):
+        for i in range(features):
             coeffs.append(0)
         
         return coeffs
@@ -45,6 +45,7 @@ class LinearReression:
 
         #total data points
         n = len(y)
+
         #our total cost
         error = 0
         
@@ -62,17 +63,17 @@ class LinearReression:
         n = len(y)
         features = len(x[0])
         gradient_coeff = self.initialize_coeff(features)
-
+        gradient_bias = 0
         #computing gradient coefficients of entire dataset
         for i in range(n):
             diff = self.cost(y[i], x[i])
-            gradient_coeff[0] += -(2/n) * diff
+            gradient_bias += -(2/n) * diff
             for j in range(features):
-                gradient_coeff[j+1] += -(2/n) * x[i][j] * diff
+                gradient_coeff[j] += -(2/n) * x[i][j] * diff
 
         #updating our theta parameter
-        self.theta[0] = self.updateTheta(self.theta[0], gradient_coeff[0], alpha)
-        for i in range(1, features):
+        self.bias = self.updateTheta(self.bias, gradient_bias, alpha)
+        for i in range(features):
             self.theta[i] = self.updateTheta(self.theta[i], gradient_coeff[i], alpha)
 
         return
@@ -82,7 +83,7 @@ class LinearReression:
         #Total Features
         m = len(x[0])
         self.theta = self.initialize_coeff(m)
-
+        self.bias = 0
         for i in range(epochs):
             self.gradient(alpha, x, y)
 
@@ -101,8 +102,9 @@ if __name__ == "__main__":
 
     #fiting our datapoints
     leg.fit(x_multi, y)
-
+    
     #printing it's weiths
     print(leg.theta)
-   
+    print(leg.bias)
+    print(leg.predict([45, 90]))
     print(leg.mean_squared_error(y,  x_multi))
